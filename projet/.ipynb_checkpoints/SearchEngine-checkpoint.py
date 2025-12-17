@@ -3,8 +3,9 @@ import pandas as pd
 from scipy.sparse import csr_matrix
 from sklearn.metrics.pairwise import cosine_similarity
 from collections import Counter
-from tqdm import tqdm
-
+# from tqdm import tqdm
+from stqdm import stqdm
+import time
 
 class SearchEngine:
 
@@ -39,10 +40,10 @@ class SearchEngine:
         print(f"- vocab size: {len(self.vocab)}")
         print(f"- matrix shape: {self.mat_TF.shape}")
 
-    # -------------------------------------------------------
-    # SEARCH FUNCTION (MAIN PART 3 REQUIREMENT)
-    # -------------------------------------------------------
-    def search(self, query, k=10):  
+        # -------------------------------------------------------
+        # SEARCH FUNCTION (MAIN PART 3 REQUIREMENT)
+        # -------------------------------------------------------
+    def search(self, query, k=10):
         """
         Search documents for given query terms.
         Returns a pandas DataFrame of the top-k documents.
@@ -50,38 +51,37 @@ class SearchEngine:
         query = self.corpus.nettoyer_texte(query)
         tokens = query.split()
         tokens = [w for w in tokens if w in self.vocab]
-
+    
         if not tokens:
             return pd.DataFrame({"message": ["No query terms found in vocabulary"]})
-
+    
         # Build query vector
         q_vec = np.zeros(len(self.vocab))
         for w in tokens:
-            q_vec[self.word_to_col[w]] += 1 # the column that corresponds to each word := 1
+            q_vec[self.word_to_col[w]] += 1
         q_vec = csr_matrix(q_vec)
-
+    
         # Choose matrix
         doc_matrix = self.mat_TF_IDF if self.use_tfidf else self.mat_TF
-
+    
         # Cosine similarity
         sims = cosine_similarity(q_vec, doc_matrix).flatten()
-
+    
         # Top-k ranking
         top_idx = sims.argsort()[::-1][:k]
-
-        # Build DataFrame with progress bar
+    
         rows = []
-        for idx in tqdm(top_idx, desc="Processing top-k documents", unit="doc"):
+    
+        for idx in top_idx:
             doc_id = idx + 1
             doc = self.corpus.id2doc[doc_id]
-
-            # 🔥 CALL CONCORD INSIDE SEARCH ENGINE
+    
             concord_text = self.corpus.concord(
                 doc_id,
-                query_words=tokens,  # concord only handles a single word
+                query_words=tokens,
                 window=50
             )
-        
+    
             rows.append({
                 "doc_id": doc_id,
                 "titre": doc.titre,
@@ -91,5 +91,5 @@ class SearchEngine:
                 "url": getattr(doc, "url", ""),
                 "texte": concord_text
             })
-
+    
         return pd.DataFrame(rows)

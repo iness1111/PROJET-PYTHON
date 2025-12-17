@@ -85,8 +85,10 @@ class Corpus:
 
     
     # new one (clean save)
-    def save(self, filename, min_length=20):
-        self.remove_small_docs(min_length=min_length)
+    def save(self, filename, min_length=20, clean=True):
+        if clean:
+            self.remove_small_docs(min_length=min_length)
+    
         data = []
         for doc_id, doc in self.id2doc.items():
             data.append({
@@ -94,15 +96,14 @@ class Corpus:
                 "titre": doc.titre,
                 "auteur": doc.auteur,
                 "date": doc.date,
-                "url": getattr(doc, "url", ""),  # safe for RedditDocument
-                "texte": " ".join(doc.texte.split()),  # remove newlines
-                # "nb_comments": doc.nb_comments,  # 0 if not available
+                "url": getattr(doc, "url", ""),
+                "texte": " ".join(doc.texte.split()),
                 "type": doc.getType()
             })
     
         df = pd.DataFrame(data)
         df.to_csv(filename, sep=';', index=False, encoding="utf-8")
-        print(f"Corpus saved to {filename} ({len(df)} documents).")
+        return df
 
 
 
@@ -201,7 +202,7 @@ class Corpus:
         
         
         # fallback générique
-        return Document(titre, auteur, date, texte)
+        return Document(titre, auteur, date, url, texte)
 
 
     

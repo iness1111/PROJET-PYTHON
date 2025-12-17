@@ -98,4 +98,6 @@ if search_btn:
                     with st.expander(f"{row['titre']} (score: {row['score']:.3f})"):
                         st.markdown(f"**Author:** {row['auteur']}")
                         st.markdown(f"**Date:** {row['date']}")
+                        if row.get("url"):
+                            st.markdown(f"**URL:** [{row['url']}]({row['url']})")
                         st.markdown(row["texte"])

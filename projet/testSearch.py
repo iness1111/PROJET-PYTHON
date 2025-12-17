@@ -14,25 +14,25 @@ class MockCorpus(Corpus):
         super().__init__("MockCorpus")
         # Add documents using factory — no 'id' argument!
         self.add_document(Corpus.factory(
-            "Doc 1",
-            "Alice",
-            "Machine learning is great",
-            "2025-01-01",
-            "mock"
+            "Machine learning is great",  # texte
+            "Doc 1",                      # titre
+            "Alice",                      # auteur
+            "2025-01-01",                 # date
+            "csv"                         # source
         ))
         self.add_document(Corpus.factory(
-            "Doc 2",
-            "Bob",
             "Deep learning applications",
+            "Doc 2",
+            "Bob",  
             "2025-01-02",
-            "mock"
+            "csv"
         ))
         self.add_document(Corpus.factory(
+            "Data science and AI",
             "Doc 3",
             "Alice",
-            "Data science and AI",
             "2025-01-03",
-            "mock"
+            "csv"
         ))
 
         
